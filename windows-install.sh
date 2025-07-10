@@ -55,24 +55,17 @@ mount -o loop win10.iso winfile
 rsync -avz --progress winfile/* /mnt
 umount winfile
 
-# Descargar imagen VirtIO desde bit.ly
-wget -O virtio.iso https://bit.ly/4d1g7Ht
+# Descargar ISO de VirtIO desde Fedora (versión 0.1.240)
+wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.240-1/virtio-win-0.1.240.iso -O virtio.iso
 
-# Verificar si se descargó mal (menos de 1MB = falló)
-iso_size=$(stat -c %s virtio.iso)
-if [ "$iso_size" -lt 1048576 ]; then
-    echo "⚠️ Descarga desde bit.ly falló o incompleta. Descargando desde mirror alternativo..."
-    wget -O virtio.iso https://releases.pagure.org/virtio-win/virtio-win.iso
-fi
-
-# Montar virtio.iso y copiar los drivers al boot.wim
+# Montar ISO de VirtIO y copiar drivers
 mkdir /root/virtio_mount
 mount -o loop virtio.iso /root/virtio_mount
 
 mkdir /mnt/sources/virtio_drivers
 cp -r /root/virtio_mount/* /mnt/sources/virtio_drivers/
 
-# Inyectar drivers al entorno del instalador
+# Inyectar los drivers al entorno del instalador
 cd /mnt/sources
 echo 'add virtio_drivers /virtio_drivers' > cmd.txt
 wimlib-imagex update boot.wim 2 < cmd.txt
