@@ -55,37 +55,12 @@ mount -o loop win10.iso winfile
 rsync -avz --progress winfile/* /mnt
 umount winfile
 
-# 🔁 INTENTO 1: Descargar VirtIO desde bit.ly
-wget -O virtio.iso https://bit.ly/4d1g7Ht
-
-# Verificar tamaño
-iso_size=$(stat -c %s virtio.iso)
-if [ "$iso_size" -lt 1048576 ]; then
-    echo "⚠️ bit.ly falló, probando con Fedora..."
-
-    # 🔁 INTENTO 2: Descargar desde Fedora
-    wget -O virtio.iso https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.240-1/virtio-win-0.1.240.iso
-
-    iso_size=$(stat -c %s virtio.iso)
-    if [ "$iso_size" -lt 1048576 ]; then
-        echo "❌ Fedora falló, probando con Google Drive..."
-
-        # 🔁 INTENTO 3: Descargar desde Google Drive
-        wget -O virtio.iso --no-check-certificate "https://drive.usercontent.google.com/download?export=download&id=18sLSbOqWfQwpT6TA240EI2dROTgsFfcf&confirm=t"
-
-        iso_size=$(stat -c %s virtio.iso)
-        if [ "$iso_size" -lt 1048576 ]; then
-            echo "🚨 Todas las descargas fallaron. Abortando..."
-            exit 1
-        else
-            echo "✅ Descargado desde Google Drive con éxito."
-        fi
-    else
-        echo "✅ Descargado desde Fedora con éxito."
-    fi
-else
-    echo "✅ Descargado desde bit.ly con éxito."
-fi
+# Descargar VirtIO drivers desde servidor propio (ngrok)
+echo "📦 Descargando VirtIO desde servidor local (ngrok)..."
+wget -O virtio.iso --no-check-certificate https://28c86d596cfb.ngrok-free.app/virtio-win-0.1.240.iso || {
+    echo "❌ Falló la descarga desde tu servidor ngrok. Abortando..."
+    exit 1
+}
 
 # Montar VirtIO y copiar drivers
 mkdir /root/virtio_mount
